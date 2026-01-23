@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "🚀 Pushing Micro-Meter to GitHub..."
+
+git add .
+git commit -m "Update: Lightweight Micro-Meter with Arc Testnet integration"
+git remote set-url origin https://github.com/mianohh/micro-meter-arc.git
+git push -u origin main
+
+echo "✅ Successfully pushed to GitHub!"
+echo "🔗 Repository: https://github.com/mianohh/micro-meter-arc"
