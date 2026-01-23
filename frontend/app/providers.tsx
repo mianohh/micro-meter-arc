@@ -9,17 +9,9 @@ import { defineChain } from 'viem';
 const arcTestnet = defineChain({
   id: 5042002,
   name: 'Arc Testnet',
-  nativeCurrency: {
-    decimals: 6,
-    name: 'USDC',
-    symbol: 'USDC',
-  },
-  rpcUrls: {
-    default: { http: ['https://5042002.rpc.thirdweb.com'] },
-  },
-  blockExplorers: {
-    default: { name: 'ArcScan', url: 'https://testnet.arcscan.app' },
-  },
+  nativeCurrency: { decimals: 6, name: 'USDC', symbol: 'USDC' },
+  rpcUrls: { default: { http: ['https://5042002.rpc.thirdweb.com'] } },
+  blockExplorers: { default: { name: 'ArcScan', url: 'https://testnet.arcscan.app' } },
   testnet: true,
 });
 
