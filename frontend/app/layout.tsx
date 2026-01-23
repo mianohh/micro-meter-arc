@@ -2,8 +2,8 @@ import './globals.css';
 import { Providers } from './providers';
 
 export const metadata = {
-  title: 'Micro-Meter',
-  description: 'AI Agent Marketplace',
+  title: 'Micro-Meter-Arc',
+  description: 'Decentralized AI Agent Marketplace on Arc Testnet',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
