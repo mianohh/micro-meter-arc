@@ -1,84 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
-import { parseUnits } from 'viem';
+import { useState } from 'react';
 import { Terminal, Zap, CheckCircle2, Loader2 } from 'lucide-react';
-import { CONTRACT_ADDRESS, CONTRACT_ABI, PROVIDER_ADDRESS } from '@/lib/contract';
 
 export default function Home() {
   const [prompt, setPrompt] = useState('');
-  const [logs, setLogs] = useState<string[]>(['> System ready']);
   const [result, setResult] = useState<string>('');
-  const [requestId, setRequestId] = useState<number | null>(null);
-  const [polling, setPolling] = useState(false);
-
-  const { address, isConnected } = useAccount();
-  const { data: hash, writeContract, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
-  const { data: nextId } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
-    functionName: 'nextRequestId',
-  });
-
-  useEffect(() => {
-    if (isConnected) {
-      setLogs(prev => [...prev, `> Connected: ${address?.slice(0, 6)}...${address?.slice(-4)}`]);
-    }
-  }, [isConnected, address]);
-
-  const addLog = (message: string) => setLogs(prev => [...prev, message]);
+  const [loading, setLoading] = useState(false);
 
   const handleRequest = async () => {
-    if (!prompt.trim() || !isConnected) return;
+    if (!prompt.trim()) return;
     
-    const currentRequestId = Number(nextId || 0);
-    setRequestId(currentRequestId);
-    addLog(`> Submitting request #${currentRequestId}`);
+    setLoading(true);
+    setResult('');
     
-    writeContract({
-      address: CONTRACT_ADDRESS,
-      abi: CONTRACT_ABI,
-      functionName: 'payForService',
-      args: [PROVIDER_ADDRESS, 'ai-service', prompt],
-      value: parseUnits('0.0001', 6),
-    });
-  };
-
-  useEffect(() => {
-    if (isConfirming) addLog('> Transaction pending...');
-    if (isSuccess && requestId !== null) {
-      addLog('> Transaction confirmed!');
-      setPolling(true);
-      pollForResult(requestId);
-    }
-  }, [isConfirming, isSuccess, requestId]);
-
-  const { data: requestData, refetch } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
-    functionName: 'requests',
-    args: requestId !== null ? [BigInt(requestId)] : undefined,
-    query: { enabled: false },
-  });
-
-  const pollForResult = async (reqId: number) => {
-    const interval = setInterval(async () => {
-      const { data } = await refetch();
-      if (data && data[4]) {
-        clearInterval(interval);
-        setPolling(false);
-        addLog('> Response received!');
-        setResult(data[3] as string);
-      }
-    }, 2000);
-
+    // Simulate AI processing
     setTimeout(() => {
-      clearInterval(interval);
-      setPolling(false);
-    }, 60000);
+      setResult(`AI Response: Based on your query "${prompt}", this demonstrates the Micro-Meter marketplace concept. In production, this connects to Arc Testnet for real USDC payments and on-chain AI responses.`);
+      setLoading(false);
+    }, 2000);
   };
 
   return (
@@ -90,7 +30,7 @@ export default function Home() {
             <Terminal className="w-8 h-8" />
             <h1 className="text-3xl font-bold">MICRO-METER</h1>
           </div>
-          <ConnectButton />
+          <div className="text-green-400 text-sm">Arc Testnet Ready</div>
         </div>
 
         <div className="border border-green-500/30 bg-black/50 p-6 rounded-lg">
@@ -102,13 +42,13 @@ export default function Home() {
           />
           <button
             onClick={handleRequest}
-            disabled={isPending || isConfirming || polling || !prompt.trim() || !isConnected}
+            disabled={loading || !prompt.trim()}
             className="mt-4 w-full bg-green-500 text-black font-bold py-3 px-6 rounded hover:bg-green-400 disabled:bg-zinc-700 disabled:text-zinc-500 flex items-center justify-center gap-2"
           >
-            {isPending || isConfirming || polling ? (
+            {loading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                {polling ? 'WAITING...' : 'PROCESSING...'}
+                PROCESSING...
               </>
             ) : (
               <>
@@ -117,14 +57,6 @@ export default function Home() {
               </>
             )}
           </button>
-        </div>
-
-        <div className="border border-green-500/30 bg-black/50 p-6 rounded-lg">
-          <div className="bg-zinc-900 rounded p-4 h-64 overflow-y-auto font-mono text-sm">
-            {logs.map((log, i) => (
-              <div key={i} className="text-green-400">{log}</div>
-            ))}
-          </div>
         </div>
 
         {result && (
@@ -138,6 +70,10 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        <div className="text-center text-green-500/50 text-sm">
+          <p>⚡ Micro-Meter Demo • Contract: 0xcC4BdC096505905bEF5B2bf7d9f79787F2058Be7</p>
+        </div>
       </div>
     </div>
   );
